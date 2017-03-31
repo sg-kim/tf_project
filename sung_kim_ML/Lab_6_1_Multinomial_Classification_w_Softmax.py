@@ -35,3 +35,4 @@ for step in range(0, 1000):
 test_val = sess.run(hypo, feed_dict={x:[[1, 2, 3, 4]], Y:[[0, 0, 1]]})
 
 print(test_val, sess.run(tf.arg_max(test_val, 1)))
+
