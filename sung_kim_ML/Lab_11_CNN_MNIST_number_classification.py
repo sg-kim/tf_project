@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+import time
+
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
@@ -77,29 +79,48 @@ with tf.name_scope("full_connection_layer_9") as scope:
 with tf.name_scope("cost_function") as scope:
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=fc_l9, name='cost'))
 
+    cost_summ = tf.summary.scalar("cost", cost)
+
 with tf.name_scope("optimizer") as scope:
     optimizer = tf.train.AdamOptimizer(0.01).minimize(cost)
 
 validation = tf.equal(tf.arg_max(hypo, 1), tf.arg_max(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(validation, tf.float32))
 
-#sess = tf.Session()
-#sess.run(tf.global_variables_initializer())
+acc_summ = tf.summary.scalar("accuracy", accuracy)
 
-#for step in range(0, 101):
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
-#    batch = mnist.train.next_batch(50)
+merged = tf.summary.merge_all()
+writer = tf.summary.FileWriter("./logs/Lab_11_CNN_MNIST_deeper", sess.graph)
 
-#    sess.run(optimizer, feed_dict={x:batch[0], Y:batch[1], prob_keep:0.5})
+start_time = time.time()
 
-#    if step%20 = 0:
+for step in range(0, 101):
 
-#        cost_val = sess.run(cost, feed_dict={x:batch[0], Y:batch[1], prob_keep:0.5})
-#        acc_val = sess.run(accuracy, feed_dict={x:batch[0], Y:batch[1], prob_keep:1.0})
-#        print("%f, %f"%(cost_val, acc_val))
+    batch = mnist.train.next_batch(50)
 
-#test = mnist.test.next_batch(1000)
+    sess.run(optimizer, feed_dict={x:batch[0], Y:batch[1], prob_keep:0.5})
 
-#acc_val = sess.run(accuracy, feed_dict={x:test[0], Y:test[1], prob_keep:1.0})
+    if step%10 == 0:
 
-#print(acc_val)
+        cost_val = sess.run(cost, feed_dict={x:batch[0], Y:batch[1], prob_keep:0.5})
+        acc_val, summary = sess.run([accuracy, merged], feed_dict={x:batch[0], Y:batch[1], prob_keep:1.0})
+
+        writer.add_summary(summary, step)
+
+        print("Step: %d, cost: %f, accuracy: %f"%(step, cost_val, acc_val))
+
+end_training_time = time.time()
+
+test = mnist.test.next_batch(1000)
+
+acc_val = sess.run(accuracy, feed_dict={x:test[0], Y:test[1], prob_keep:1.0})
+
+end_test = time.time()
+
+print("run time: %f"%(end_test - start_time))
+print("time for training: %f"%(end_trainig - start_time))
+print("time for test: %f"%(ent_test - end_training))
+print("accuracy: %f"%(acc_val))
