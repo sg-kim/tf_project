@@ -6,6 +6,8 @@ import time
 import tensorflow as tf
 sess = tf.Session()
 
+cudnn_on_gpu = True
+
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
@@ -15,7 +17,7 @@ def bias_variable(shape):
     return tf.Variable(initial)
 
 def conv2d(x, W):
-    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], use_cudnn_on_gpu=False, padding='SAME')
+    return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], use_cudnn_on_gpu=cudnn_on_gpu, padding='SAME')
 
 def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding="SAME")
@@ -92,9 +94,9 @@ sess.run(tf.global_variables_initializer())
 start_time = time.time()
 
 #for i in range(20000):
-for i in range(2000):    
+for i in range(1000):    
     batch = mnist.train.next_batch(50)
-    if i%10 == 0:
+    if i%20 == 0:
         #train_accuracy = sess.run(accuracy.eval(feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0}))
         train_accuracy = sess.run(accuracy, feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0})
         print("step %d, training accuracy %g"%(i, train_accuracy))
