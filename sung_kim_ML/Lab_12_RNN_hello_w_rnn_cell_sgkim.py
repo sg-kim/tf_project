@@ -3,7 +3,7 @@ import numpy as np
 
 from rnn_cell_sgkim import rnn_cell
 
-char_rdic = ['h', 'e', 'l', 'o']        #   idex - value
+char_rdic = ['h', 'e', 'l', 'o']        #   raw dictionary, idex - value
 char_dic = {w: i for i, w in enumerate(char_rdic)}      #   value - index
 x_data = np.array([[1, 0, 0, 0],                    #   h
                    [0, 1, 0, 0],                    #   e
@@ -16,8 +16,7 @@ x = tf.placeholder(tf.float32, shape=[None, 4])
 Y = tf.placeholder(tf.float32, shape=[None, 4])
 
 char_vocab_size = len(char_dic)
-rnn_size = char_vocab_size
-time_step_size = 4
+time_step_size = char_vocab_size
 
 rnn_cell = rnn_cell(time_step_size, 4, 4, x)
 hypo = tf.one_hot(tf.arg_max(rnn_cell, 1), char_vocab_size)
