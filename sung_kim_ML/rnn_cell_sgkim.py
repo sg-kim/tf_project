@@ -36,10 +36,39 @@ import tensorflow as tf
 
 class rnn_cell:
 
-
     def __init__(self, batch_size, input_num_element, output_num_element):
         self.h = tf.Variable(tf.zeros(shape=[batch_size, input_num_element], dtype=tf.float32))
 
-        self.Wxh = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32))
-        self.Whh = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32))
+##        self.Wxh = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32))
+##        self.Whh = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32))
+
+        self.Wxh = tf.Variable([[1.0, 1.0, 1.0, 1.0], [3.0, 3.0, 3.0, 3.0],
+                                [5.0, 5.0, 5.0, 5.0], [7.0, 7.0, 7.0, 7.0]], dtype=tf.float32)
+        self.Whh = tf.Variable([[2.0, 2.0, 2.0, 2.0], [4.0, 4.0, 4.0, 4.0],
+                               [6.0, 6.0, 6.0, 6.0], [8.0, 8.0, 8.0, 8.0]], dtype=tf.float32)
         
+        self.stimulus = tf.placeholder(tf.float32, shape=[batch_size, input_num_element])
+        self.answer = tf.placeholder(tf.float32, shape=[batch_size, input_num_element])
+
+##        self.h = self.h.assign(tf.tanh(tf.matmul(self.h, self.Whh) + tf.matmul(self.stimulus, self.Wxh)))
+        self.h = self.h.assign(tf.matmul(self.h, self.Whh) + tf.matmul(self.stimulus, self.Wxh))
+
+##        self.Wyh = tf.Variable(tf.random_normal(shape=[output_num_element, output_num_element], dtype=tf.float32))
+        self.Wyh = tf.Variable([[1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0],
+                                [3.0, 3.0, 3.0, 3.0], [4.0, 4.0, 4.0, 4.0]], dtype=tf.float32)
+
+        self.hypo = tf.matmul(self.h, self.Wyh)
+        
+    def run(self, tf_sess, stimulus):
+
+        return tf_sess.run(self.hypo, feed_dict={self.stimulus: stimulus})
+
+    def optimize(self, tf_sess, stimulus, answer)
+
+        self.hypo_one_hot = tf.one_hot(tf.arg_max(self.hypo, 1), input_num_element)
+        self.cost = tf.reduce_mean(tf.reduce_sum(tf.square(hypo_one_hot - answer), axis=1))
+
+        self.optimizer = tf.train.AdamOptimizer(0.01).minimize(self.cost)
+        tf_sess.run(self.optimizer, feed_dict={self.stimulus: stimulus, self.answer: answe})
+
+

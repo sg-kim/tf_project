@@ -25,6 +25,7 @@ import rnn_cell_sgkim as rcell
 
 x = tf.placeholder(tf.float32, shape=[None, 4])
 Y = tf.placeholder(tf.float32, shape=[None, 4])
+
 ht = tf.Variable([[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]], dtype=tf.float32)
 
 ##Wxh = tf.Variable(tf.random_normal([4, 4]), name='Weight_xh')
@@ -45,7 +46,8 @@ Wyh = tf.Variable([[1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0],
 hypo = tf.matmul(ht, Wyh)
 
 ##hypo2 = rnn_cell(2, 4, 4, x)
-hypo2 = rcell.rnn_cell(2, 4, 4, x)
+##hypo2 = rcell.rnn_cell(2, 4, 4, x)
+hypo2 = rcell.rnn_cell(2, 4, 4)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
@@ -57,7 +59,8 @@ for step in range(1, 4):
 ##    print(ht_val)
     print(hypo_val)
 
-    hypo2_val = sess.run(hypo2, feed_dict={x:[[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]]})
+##    hypo2_val = sess.run(hypo2, feed_dict={x:[[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]]})
+    hypo2_val = hypo2.run(sess, [[1.0, 1.0, 1.0, 1.0], [1.0, 1.0, 1.0, 1.0]])
 
     print(hypo2_val)
-    
+
