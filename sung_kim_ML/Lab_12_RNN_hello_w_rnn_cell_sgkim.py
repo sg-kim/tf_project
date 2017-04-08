@@ -40,7 +40,7 @@ for epoch in range(0, 101):
 
         answer = sess.run(tf.reshape(tf.one_hot(sample[step + 1], char_vocab_size), [-1, 4]))
 
-        rnn_cell.optimize(sess, 0.0005, stimulus, answer)
+        rnn_cell.optimize(sess, 1e-9, stimulus, answer)
 
 ##    summary = sess.run(merged)
 ##    writer.add_summary(summary, epoch)

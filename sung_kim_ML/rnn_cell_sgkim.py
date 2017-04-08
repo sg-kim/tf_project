@@ -4,29 +4,33 @@ import tensorflow as tf
 class rnn_cell:
 
     def __init__(self, batch_size, input_num_element, output_num_element):
-        self.h = tf.Variable(tf.zeros(shape=[batch_size, output_num_element], dtype=tf.float32, name='h'))
+        self.fb = tf.Variable(tf.zeros(shape=[batch_size, output_num_element], dtype=tf.float32, name='feedback'))
 
-        self.Wxh = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32, name='Wxh'))
-        self.Whh = tf.Variable(tf.random_normal(shape=[output_num_element, output_num_element], dtype=tf.float32, name='Whh'))
+        self.Wx = tf.Variable(tf.random_normal(shape=[input_num_element, output_num_element], dtype=tf.float32, name='Wx'))
+        self.Wf = tf.Variable(tf.random_normal(shape=[output_num_element, output_num_element], dtype=tf.float32, name='Wf'))
 
-##        self.Wxh = tf.Variable([[1.0, 1.0, 1.0, 1.0], [3.0, 3.0, 3.0, 3.0],
+##        self.Wx = tf.Variable([[1.0, 1.0, 1.0, 1.0], [3.0, 3.0, 3.0, 3.0],
 ##                                [5.0, 5.0, 5.0, 5.0], [7.0, 7.0, 7.0, 7.0]], dtype=tf.float32)
-##        self.Whh = tf.Variable([[2.0, 2.0, 2.0, 2.0], [4.0, 4.0, 4.0, 4.0],
+##        self.Wf = tf.Variable([[2.0, 2.0, 2.0, 2.0], [4.0, 4.0, 4.0, 4.0],
 ##                               [6.0, 6.0, 6.0, 6.0], [8.0, 8.0, 8.0, 8.0]], dtype=tf.float32)
         
         self.stimulus = tf.placeholder(tf.float32, shape=[batch_size, input_num_element])
         self.answer = tf.placeholder(tf.float32, shape=[batch_size, output_num_element])
 
-        self.h = self.h.assign(tf.tanh(tf.matmul(self.h, self.Whh) + tf.matmul(self.stimulus, self.Wxh)))
-##        self.h = self.h.assign(tf.matmul(self.h, self.Whh) + tf.matmul(self.stimulus, self.Wxh))
+##        fb_loop = tf.assign(self.fb, tf.tanh(tf.matmul(self.fb, self.Wf) + tf.matmul(self.stimulus, self.Wx)), name='feedback_loop')
+        self.fb_loop = tf.assign(self.fb, tf.matmul(self.fb, self.Wf) + tf.matmul(self.stimulus, self.Wx), name='feedback_loop')
+##        fb_loop = tf.assign(self.fb, tf.matmul(self.fb, self.Wf) + tf.matmul(self.stimulus, self.Wx), name='feedback_loop')
+        
+        self.Wy = tf.Variable(tf.random_normal(shape=[output_num_element, output_num_element], dtype=tf.float32, name='Wy'))
+##        self.Wy = tf.Variable([[1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0],
+##                               [3.0, 3.0, 3.0, 3.0], [4.0, 4.0, 4.0, 4.0]], dtype=tf.float32)
 
-        self.Wyh = tf.Variable(tf.random_normal(shape=[output_num_element, output_num_element], dtype=tf.float32, name='Wyh'))
-##        self.Wyh = tf.Variable([[1.0, 1.0, 1.0, 1.0], [2.0, 2.0, 2.0, 2.0],
-##                                [3.0, 3.0, 3.0, 3.0], [4.0, 4.0, 4.0, 4.0]], dtype=tf.float32)
+##        self.hypo = tf.matmul(self.fb_loop, self.Wy)
+##        self.hypo = tf.nn.softmax(tf.matmul(self.fb_loop, self.Wy))
+        self.hypo = tf.nn.tanh(tf.matmul(self.fb_loop, self.Wy))
 
-        self.hypo = tf.matmul(self.h, self.Wyh)
-
-        self.cost = tf.reduce_mean(tf.reduce_mean(tf.square((self.hypo + 1)*0.5 - self.answer), axis=1))
+        self.cost = tf.reduce_mean(tf.reduce_mean(tf.square(self.hypo - self.answer), axis=1))
+##        self.cost = tf.nn.softmax_cross_entropy_with_logits(labels=self.answer, logits=self.fb)
 
         self.learning_rate = tf.placeholder(tf.float32)
 
