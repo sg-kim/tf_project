@@ -40,7 +40,9 @@ Y = tf.add(tf.multiply(X, W), b)
 ##      Cost function and Optimizer definition
 ######################################################################
 
-cost = tf.sqrt(tf.reduce_sum(tf.pow((Y - Y_), 2)) / sales_data.size)
+#cost = tf.sqrt(tf.reduce_sum(tf.pow((Y - Y_), 2)) / sales_data.size)
+cost = tf.sqrt(tf.reduce_mean(tf.pow((Y - Y_), 2)))
+
 optimizer = tf.train.GradientDescentOptimizer(0.1).minimize(cost)
 
 ######################################################################
@@ -60,7 +62,7 @@ price_data_n = sess.run(tf.cast(normalize(price_data), tf.float32))
 for step in range(200):
 
     for i, j in zip(price_data_n, sales_data_n):
-    #for i, j in zip(price_data, sales_data):    
+    #for i, j in zip(price_data, sales_data):
         sess.run(optimizer, feed_dict = {X: i, Y_: j})
 
     if step % 10 == 0:

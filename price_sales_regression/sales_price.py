@@ -1,4 +1,9 @@
+import argparse
+import sys
+import time
 
+import tensorflow as tf
+import numpy as np
 
 import regression
 
@@ -31,21 +36,21 @@ def placeholder_inputs():
 
 def make_feed_dict(price, sales, price_data, sales_data):
 
-    price_data_n = normalize(price_data)
-    sales_data_n = normalize(sales_data)
+    price_data_n = normalize(price_data).astype(np.float32)
+    sales_data_n = normalize(sales_data).astype(np.float32)
 
     feed_dict = {price: price_data_n, sales: sales_data_n}
 
     return feed_dict
 
-def do_eval(sess, cost, price_data, sales_data):
+def do_eval(sess, cost, prediction, sales_data):
 
-    print("cost: %f"%(sess.run(cost, feed_dict = {X: price_data, Y_: sales_data})))
+    print("cost: %f"%(sess.run(cost(prediction, sales_data))))
 
-def do_plot(sess, W, b, price_data, sales_data):
+def do_plot(sess, prediction, price_data, sales_data):
 
     plt.plot(price_data, sales_data, color='green', marker='o', linestyle='none', label ='Price-Sales')
-    plt.plot(price_data, sess.run(W)*price_data + sess.run(b), label = 'Fitted line')
+    plt.plot(price_data, sess.run(prediction, feed_dict = {price_data: price_data}), label = 'Fitted line')
     plt.legend()
     plt.show()
 
@@ -55,7 +60,7 @@ def run_training():
 
         price_placeholder, sales_placeholder = placeholder_inputs()
 
-        prediction = regression.prediction(price_placeholder, sales_placeholder)
+        prediction = regression.prediction(price_placeholder)
 
         cost = regression.cost(prediction, sales_placeholder)
 
@@ -73,24 +78,32 @@ def run_training():
 
             feed_dict = make_feed_dict(price_placeholder, sales_placeholder, price_data, sales_data)
 
-            sess.run(train, feed_dict = feed_dict)
+            for i, j in zip(feed_dict[price_placeholder], feed_dict[sales_placeholder]):
+                sess.run(train, feed_dict = {price_placeholder: i, sales_data: j})
 
             if step%10 == 0:
 
-                do_eval(sess, cost, sess.run(price_placeholder), sess.run(sales_placeholder))
+                do_eval(sess, cost, prediction, feed_dict[price_placeholder], feed_dict[sales_placeholder])
 
-        do_plot(sess, )
+        end_time = time.time()
 
-def main():
+        do_plot(sess, prediction, feed_dict[price_placeholder], feed_dict[sales_placeholder])
+
+        print('Running time: %f'%(start_time - end_time))
+
+def main(argv):        
     run_training()
+    
 
 if __name__ == '__main__':
-
-    parser = argparser.ArgumentParser()
+    
+    parser = argparse.ArgumentParser()
 
     parser.add_argument('--learning_rate', type = float, default = 0.01, help = 'Learning rate for optimizer')
 
-    parser.add_argument('--max_steps', type = int, default = 200, help = 'Number of training steps')
+    parser.add_argument('--max_steps', type = int, default = 10, help = 'Number of training steps')
 
     FLAGS, unparsed = parser.parse_known_args()
-    tf.app.run(main = main, argv = [sys.argv[0]] + unparsed)
+
+    tf.app.run(main = main, argv=[sys.argv[0]] + unparsed)
+    
