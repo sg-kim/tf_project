@@ -1,4 +1,6 @@
 import rpi_camera as rpi_cam
+import digit_class_cnn as dcnn
+import tensorflow as tf
 
 def display_image_data(img_buf, img_width, img_height):
 
@@ -41,33 +43,39 @@ crop_height = 28
 crop_size = crop_width*crop_height
 
 camera = rpi_cam.rpi_camera(img_width, img_height, 180)
+cnn = dcnn.digit_classifier()
 
 repeat = 1
 
-while repeat > 0:
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
-    output = camera.capture()
-    display_image_data(output, img_width, img_height)
+cnn.train(sess, 100)
 
-    crop_out = camera.crop(output, img_width, img_height, crop_width, crop_height)
-    display_image_data(crop_out, crop_width, crop_height)
-
-    half_smpl_img = camera.half_sampling(crop_out, crop_width, crop_height)
-    display_image_data(half_smpl_img, (crop_width>>1), (crop_height>>1))
-
-    inv_out = camera.pixel_inversion(half_smpl_img)
-    display_image_data(inv_out, (crop_width>>1), (crop_height>>1))
-
-    norm_out = camera.normalize(inv_out, (crop_width>>1), (crop_height>>1))
-    display_image_data(norm_out, (crop_width>>1), (crop_height>>1))
-
-    uint8_out = camera.cast_uint8(norm_out)
-    display_image_data(uint8_out, (crop_width>>1), (crop_height>>1))
-
-    response = input('Repeat? (y/n) ')
-
-    if(response == 'n'):
-        repeat = -1
-    else:
-        repeat = 1
+##while repeat > 0:
+##
+##    output = camera.capture()
+##    display_image_data(output, img_width, img_height)
+##
+##    crop_out = camera.crop(output, img_width, img_height, crop_width, crop_height)
+##    display_image_data(crop_out, crop_width, crop_height)
+##
+##    half_smpl_img = camera.half_sampling(crop_out, crop_width, crop_height)
+##    display_image_data(half_smpl_img, (crop_width>>1), (crop_height>>1))
+##
+##    inv_out = camera.pixel_inversion(half_smpl_img)
+##    display_image_data(inv_out, (crop_width>>1), (crop_height>>1))
+##
+##    norm_out = camera.normalize(inv_out, (crop_width>>1), (crop_height>>1))
+##    display_image_data(norm_out, (crop_width>>1), (crop_height>>1))
+##
+##    uint8_out = camera.cast_uint8(norm_out)
+##    display_image_data(uint8_out, (crop_width>>1), (crop_height>>1))
+##
+##    response = input('Repeat? (y/n) ')
+##
+##    if(response == 'n'):
+##        repeat = -1
+##    else:
+##        repeat = 1
 

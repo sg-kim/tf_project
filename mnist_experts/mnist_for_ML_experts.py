@@ -6,7 +6,7 @@ import time
 import tensorflow as tf
 sess = tf.Session()
 
-cudnn_on_gpu = True
+cudnn_on_gpu = False
 
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
