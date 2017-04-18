@@ -6,7 +6,7 @@ import time
 import tensorflow as tf
 sess = tf.Session()
 
-cudnn_on_gpu = True
+cudnn_on_gpu = False
 
 def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
@@ -94,12 +94,12 @@ sess.run(tf.global_variables_initializer())
 start_time = time.time()
 
 #for i in range(20000):
-for i in range(1000):    
+for i in range(5000):    
     batch = mnist.train.next_batch(50)
     if i%20 == 0:
         #train_accuracy = sess.run(accuracy.eval(feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0}))
         train_accuracy = sess.run(accuracy, feed_dict={x: batch[0], y_: batch[1], keep_prob: 1.0})
-        print("step %d, training accuracy %g"%(i, train_accuracy))
+        print("step %d, training accuracy %3f"%(i, train_accuracy))
     #train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
     sess.run(train_step, feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
 
