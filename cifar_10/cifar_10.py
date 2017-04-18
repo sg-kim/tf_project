@@ -1,5 +1,6 @@
 import random
 import tensorflow as tf
+import numpy as np
 
 def unpickle(file):
     import pickle
@@ -16,7 +17,7 @@ def dict_batch(dict_data, batch_size):
         data_list = []
         label_list = []
 
-        for idx in range(begin, begin + batch_size):  
+        for idx in range(begin, begin + batch_size):
             data_list.append(dict_data[b'data'][idx])
             label_list.append(dict_data[b'labels'][idx])
 
@@ -93,24 +94,32 @@ file.append('.\\cifar-10-batches-py\\data_batch_5')
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-for step in range(0, 1000):
+file_sel = random.randrange(0, 4)
+dict_data = unpickle(file[file_sel])
 
-    file_sel = random.randrange(0, 4)
-    dict_data = unpickle(file[file_sel])
+data_list, label_list = dict_batch(dict_data, 2)
+data_list = sess.run(tf.reshape(data_list, [3072, -1]))
+##label_list = sess.run(tf.reshape(label_list, [-1, 1]))
 
-    data_list, label_list = dict_batch(dict_data, 50)
-    label_list = sess.run(tf.reshape(label_list, [-1, 1]))
 
-    sess.run(optimizer, feed_dict={x:data_list, Y:label_list, keep_prob_fc1:0.5, keep_prob_fc2:0.5})
-
-    if step%20 == 0:
-        cost_val, acc_val = sess.run([cross_entropy, accuracy], feed_dict={x:data_list, Y:label_list, keep_prob_fc1:1.0, keep_prob_fc2:1.0})
-        print('step: %d cost: %.3f accuracy: %.3f'%(step, cost_val, acc_val))
-
-test_file = '.\\cifar-10-batches-py\\test_batch'
-test_data = unpickle(test_file)
-test_list, test_label = dict_batch(test_data, 500)
-test_label = sess.run(tf.reshape(test_label, [-1, 1]))
-
-acc_val = sess.run(accuracy, feed_dict={x:test_list, Y:test_label, keep_prob_fc1:1.0, keep_prob_fc2:1.0})
-print('Test result: %f'%(acc_val))
+##for step in range(0, 1000):
+##
+##    file_sel = random.randrange(0, 4)
+##    dict_data = unpickle(file[file_sel])
+##
+##    data_list, label_list = dict_batch(dict_data, 50)
+##    label_list = sess.run(tf.reshape(label_list, [-1, 1]))
+##
+##    sess.run(optimizer, feed_dict={x:data_list, Y:label_list, keep_prob_fc1:0.5, keep_prob_fc2:0.5})
+##
+##    if step%20 == 0:
+##        cost_val, acc_val = sess.run([cross_entropy, accuracy], feed_dict={x:data_list, Y:label_list, keep_prob_fc1:1.0, keep_prob_fc2:1.0})
+##        print('step: %d cost: %.3f accuracy: %.3f'%(step, cost_val, acc_val))
+##
+##test_file = '.\\cifar-10-batches-py\\test_batch'
+##test_data = unpickle(test_file)
+##test_list, test_label = dict_batch(test_data, 500)
+##test_label = sess.run(tf.reshape(test_label, [-1, 1]))
+##
+##acc_val = sess.run(accuracy, feed_dict={x:test_list, Y:test_label, keep_prob_fc1:1.0, keep_prob_fc2:1.0})
+##print('Test result: %f'%(acc_val))
