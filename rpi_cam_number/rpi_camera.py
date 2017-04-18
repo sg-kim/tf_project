@@ -59,13 +59,53 @@ class rpi_camera:
         self.camera.resolution = (img_width, img_height)
         self.camera.framerate = 15
 
-    def capture(self):
+    def capture(self, standby_sec):
         self.camera.start_preview()
-        sleep(5)
+        sleep(standby_sec)
         self.camera.capture(self.output, format='yuv')
         self.camera.stop_preview()
 
         return self.output
+
+
+    def display_image_data(self, img_buf, img_width, img_height, show_uv = False):
+
+        print(type(img_width))
+        print(type(img_height))
+
+        print(img_width)
+        print(img_height)
+
+        ##  Y(Luminance), 420
+        for line in range(0, img_height):
+            for pixel in range(0, img_width):
+
+                print("%3d "%(img_buf[line*img_width + pixel]), end='')
+
+            print("")
+
+        print("\n")
+
+        if(show_uv == True):
+            ##  U(Chrominance, blue), 420
+            for line in range(0, (img_height>>1)):
+                for pixel in range(0, (img_width>>1)):
+
+                    print("%3d "%(img_buf[img_size + line*(img_width>>1) + pixel]), end='')
+
+                print("")
+
+            print("\n")
+
+            ##  V(Chrominance, red), 420
+            for line in range(0, (img_height>>1)):
+                for pixel in range(0, (img_width>>1)):
+
+                    print("%3d "%(img_buf[img_size + (img_size>>2) + line*(img_width>>1) + pixel]), end='')
+
+                print("")
+
+            print("\n")
 
     def crop(self, img_buf, img_width, img_height, crop_width, crop_height):
 
@@ -138,7 +178,7 @@ class rpi_camera:
 
         return inv_out
 
-    def normalize(self, img_buf, img_width, img_height):
+    def normalize(self, img_buf, img_width, img_height, uv_data = False):
 
         norm_width = img_width
         norm_height = img_height
@@ -163,6 +203,19 @@ class rpi_camera:
 
         return norm_out
 
+    def y_data_only(self, yuv_buf, img_width, img_height):
+
+        img_size = img_width*img_height
+
+        y_buf = np.zeros(img_size, dtype=np.float32)
+
+        for line in range(0, img_height):
+            for pixel in range(0, img_width):
+                y_buf[line*img_height + pixel] = yuv_buf[line*img_height + pixel]
+
+        return y_buf
+
     def cast_uint8(self, img_buf):
 
         return img_buf.astype(np.uint8)
+    

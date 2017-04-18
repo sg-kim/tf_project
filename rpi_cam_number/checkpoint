@@ -1,0 +1,2 @@
+model_checkpoint_path: "digit_class_cnn.wgt"
+all_model_checkpoint_paths: "digit_class_cnn.wgt"
