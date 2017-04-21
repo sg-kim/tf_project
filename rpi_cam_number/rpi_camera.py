@@ -2,7 +2,6 @@ from picamera import PiCamera
 from time import sleep
 import numpy as np
 
-
 ##camera = PiCamera()
 ##img_width = 64
 ##img_height = 64
@@ -70,11 +69,7 @@ class rpi_camera:
 
     def display_image_data(self, img_buf, img_width, img_height, show_uv = False):
 
-        print(type(img_width))
-        print(type(img_height))
-
-        print(img_width)
-        print(img_height)
+        print("Image buf type: %s, %dX%d"%(type(img_buf), img_width, img_height))      
 
         ##  Y(Luminance), 420
         for line in range(0, img_height):
@@ -218,4 +213,12 @@ class rpi_camera:
     def cast_uint8(self, img_buf):
 
         return img_buf.astype(np.uint8)
-    
+
+    def y_data_to_RGB(self, y_buf, img_width, img_height):
+
+        y = np.reshape(y_buf, [img_width, img_height, 1])
+        y_ = np.repeat(y, 3, axis = 2)
+        y__ = y_.astype(np.uint8)
+
+        return y__
+
