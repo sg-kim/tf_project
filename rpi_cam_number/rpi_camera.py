@@ -2,48 +2,6 @@ from picamera import PiCamera
 from time import sleep
 import numpy as np
 
-##camera = PiCamera()
-##img_width = 64
-##img_height = 64
-##img_size = img_width*img_height
-##
-##camera.rotation = 180
-##camera.resolution = (img_width, img_height)
-##camera.framerate = 15
-##camera.color_effects = (128, 128)
-##
-##camera.start_preview()
-##sleep(5)
-##output = np.zeros(img_size+(img_size>>1), dtype=np.uint8)
-##camera.capture(output, format='yuv')
-##camera.stop_preview()
-
-##for line in range(0, img_height):
-##    for pixel in range(0, img_width):
-##
-##        print("%d "%(output[line*img_width + pixel]), end='')
-##
-##    print("")
-##
-##print("\n")
-##
-##for line in range(0, (img_height>>1)):
-##    for pixel in range(0, (img_width>>1)):
-##
-##        print("%d "%(output[img_size + line*(img_width>>1) + pixel]), end='')
-##
-##    print("")
-##
-##print("\n")
-##
-##for line in range(0, (img_height>>1)):
-##    for pixel in range(0, (img_width>>1)):
-##
-##        print("%d "%(output[img_size + (img_size>>2) + line*(img_width>>1) + pixel]), end='')
-##
-##    print("")
-##
-##print("\n")
 
 class rpi_camera:
 
@@ -222,3 +180,23 @@ class rpi_camera:
 
         return y__
 
+    def boost_contrast(self, y_buf, img_width, img_height):
+
+        img_size = img_width*img_height
+        y_buf_boost = np.zeros(img_size)
+
+        avg = np.average(y_buf)
+
+##        print(type(y_buf_boost))
+##        print(type(avg))
+
+        for line in range(0, img_height):
+            for pixel in range(0, img_width):
+
+                p_val = y_buf[line*img_width + pixel]
+                new_p_val = (p_val - avg)*(p_val - avg)
+                y_buf_boost[line*img_width + pixel] = min(255, new_p_val)
+
+        y_buf_boost = y_buf_boost.astype(np.uint8)
+
+        return y_buf_boost
