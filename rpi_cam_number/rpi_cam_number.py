@@ -47,8 +47,12 @@ while repeat > 0:
 
     if repeat > 1:
 
-        output = camera.capture(5)
+        camera.overlay_rect_mark(img_width, img_height, crop_width, crop_height)
+
+        output = camera.capture(6)
 ##        camera.display_image_data(output, img_width, img_height)
+
+        camera.remove_overlay()
 
         crop_out = camera.crop(output, img_width, img_height, crop_width, crop_height)
 ##        camera.display_image_data(crop_out, crop_width, crop_height)

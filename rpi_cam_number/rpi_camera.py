@@ -200,3 +200,38 @@ class rpi_camera:
         y_buf_boost = y_buf_boost.astype(np.uint8)
 
         return y_buf_boost
+
+    def overlay_rect_mark(self, img_width, img_height, rect_width, rect_height):
+
+        if (rect_width <= img_width ) and (rect_height <= rect_height):
+
+            self.rect = np.zeros([self.img_height, self.img_width, 3], dtype = np.uint8)
+
+            start_x = (img_width>>1) - (rect_width>>1)
+            end_x = start_x + rect_width
+
+            start_y = (img_height>>1) - (rect_height>>1)
+            end_y = start_y + rect_height
+
+            for line in range(0, img_height):
+                for pixel in range(0, img_width):
+
+                    if (line == start_y) or (line == end_y):
+                        if (pixel >= start_x) and (pixel <= end_x):
+                            self.rect[line, pixel, :] = [0xff, 0xff, 0]
+
+                    elif (line > start_y) and (line < end_y):
+                        if (pixel == start_x) or (pixel == end_x):
+                            self.rect[line, pixel, :] = [0xff, 0xff, 0]
+
+            self.overlay_mark = self.camera.add_overlay(memoryview(self.rect), layer = 3, alpha = 64)
+
+        else:
+
+            return -1
+
+    def remove_overlay(self):
+
+        if self.overlay_mark:
+
+            self.camera.remove_overlay(self.overlay_mark)
