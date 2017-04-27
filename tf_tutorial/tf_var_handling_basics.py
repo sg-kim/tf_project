@@ -28,7 +28,7 @@ with tf.name_scope("name_scope_1"):
     var3 = tf.Variable(name="var3", initial_value = 3)
     var4 = tf.Variable(name="var4", initial_value = 4)
 
-    tf.summary.scalar("var1", var1)
+    tf.summary.histogram("var1", var1)
     tf.summary.scalar("var2", var2)
     tf.summary.scalar("var3", var3)
     tf.summary.scalar("var4", var4)
@@ -49,12 +49,12 @@ with tf.name_scope("name_scope_1") as scope:
 ##    v1 = tf.get_variable(name="var1", shape = [1])
     var2_reuse = tf.get_variable(name="var2", shape = [1])
 ##    x1 = tf.add(v1, v2)
-    var3_reuse = tf.get_variable(name="var3", shape = [1])
+    var3_reuse = tf.get_variable(name="var3", shape = [1])  
     x2 = tf.add(var2_reuse, var3_reuse)
 
-    tf.summary.scalar("var2_reuse", var2_reuse)
-    tf.summary.scalar("var3_reuse", var3_reuse)
-    tf.summary.scalar("x2", x2)
+    tf.summary.histogram("var2_reuse", var2_reuse)  
+    tf.summary.histogram("var3_reuse", var3_reuse)
+    tf.summary.histogram("x2", x2)
 
 sess.run(tf.global_variables_initializer())
 
@@ -78,8 +78,8 @@ with tf.variable_scope("var_scope_1"):
     var7 = tf.Variable(name="var7", initial_value = 7)
     var8 = tf.Variable(name="var8", initial_value = 8)
 
-    tf.summary.scalar("var5", var5)
-    tf.summary.scalar("var6", var6)
+    tf.summary.histogram("var5", var5)
+    tf.summary.histogram("var6", var6)
     tf.summary.scalar("var7", var7)
     tf.summary.scalar("var8", var8)
 
@@ -103,9 +103,9 @@ with tf.variable_scope("var_scope_1") as scope:
     var6_reuse = tf.get_variable(name="var6", shape = [1])
     x5 = tf.add(var5_reuse, var6_reuse)
 
-    tf.summary.scalar("var5_reuse", var5_reuse)
-    tf.summary.scalar("var6_reuse", var6_reuse)
-    tf.summary.scalar("x5", x5)
+    tf.summary.histogram("var5_reuse", var5_reuse)
+    tf.summary.histogram("var6_reuse", var6_reuse)
+    tf.summary.histogram("x5", x5)
 
 sess.run(tf.global_variables_initializer())
 
