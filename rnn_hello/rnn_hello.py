@@ -74,9 +74,23 @@ z_3 = tf.nn.softmax(tf.matmul(y_3, Wz) + bz)
 #   Training
 #######################################################################
 
-x_entropy_z_0 = tf.nn.softmax_cross_entropy_with_logits(labels=x_data[0], z_0)
-x_entropy_z_1 = tf.nn.softmax_cross_entropy_with_logits(labels=x_data[1], z_1)
-x_entropy_z_2 = tf.nn.softmax_cross_entropy_with_logits(labels=x_data[2], z_2)
-x_entropy_z_3 = tf.nn.softmax_cross_entropy_with_logits(labels=x_data[3], z_3)
+x_entropy_z_0 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[0], z_0))
+x_entropy_z_1 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[1], z_1))
+x_entropy_z_2 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[2], z_2))
+x_entropy_z_3 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[3], z_3))
+
+cross_entropy = tf.reduce_mean([x_entropy_z_0, x_entropy_z_1, x_entropy_z_2, x_entropy_z_3])
+
+train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+correct_prediction = [tf.equal(tf.argmax(z_0, 1), sample[1]),
+                    tf.equal(tf.argmax(z_1, 1), sample[2]),
+                    tf.equal(tf.argmax(z_2, 1), sample[3]),
+                    tf.equal(tf.argmax(z_3, 1), sample[4])]
+
+accuracy = tf.reduce_mean(correct_prediction)
+
+sess.run(tf.global_variable_initializer())
+
 
 
