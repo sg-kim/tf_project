@@ -11,6 +11,9 @@ x_data = np.array([[1, 0, 0, 0],                        #   h
 
 sample = [char_dic[c] for c in 'hello']
 
+nb_classes = 4
+sample_one_hot = tf.one_hot(sample, nb_classes)
+
 #######################################################################
 ##  Inputs
 #######################################################################
@@ -44,40 +47,48 @@ bz = tf.Variable(tf.random_normal([4]))
 
 y_0 = tf.nn.sigmoid(tf.matmul(i_0, Wi) + bi)        ##  input gate
 
-z_0 = tf.nn.softmax(tf.matmul(y_0, Wz) + bz)        ##  output gate
+y_wb_0 = tf.matmul(y_0, Wz) + bz
+
+z_0 = tf.nn.softmax(y_wb_0)        ##  output gate
 
 #######################################################################
 ##  BPTT t1
 #######################################################################
 
-y_1 = tf.nn.sigmoid(tf.matmul(i_1, Wi) + bi) + tf.nn.sigmoid((y_0, Wf) + bf)        ##  input gate & output gate
+y_1 = tf.nn.sigmoid(tf.matmul(i_1, Wi) + bi) + tf.nn.sigmoid(tf.matmul(y_0, Wf) + bf)        ##  input gate & output gate
 
-z_1 = tf.nn.softmax(tf.matmul(y_1, Wz) + bz)
+y_wb_1 = tf.matmul(y_1, Wz) + bz
+
+z_1 = tf.nn.softmax(y_wb_1)
 
 #######################################################################
 ##  BPTT t2
 #######################################################################
 
-y_2 = tf.nn.sigmoid(tf.matmul(i_2, Wi) + bi) + tf.nn.sigmoid((y_1, Wf) + bf)
+y_2 = tf.nn.sigmoid(tf.matmul(i_2, Wi) + bi) + tf.nn.sigmoid(tf.matmul(y_1, Wf) + bf)
 
-z_2 = tf.nn.softmax(tf.matmul(y_2, Wz) + bz)
+y_wb_2 = tf.matmul(y_2, Wz) + bz
+
+z_2 = tf.nn.softmax(y_wb_2)
 
 #######################################################################
 #   BPTT t3
 #######################################################################
 
-y_3 = tf.nn.sigmoid(tf.matmul(i_3, Wi) + bi) + tf.nn.sigmoid((y_2, Wf) + bf)
+y_3 = tf.nn.sigmoid(tf.matmul(i_3, Wi) + bi) + tf.nn.sigmoid(tf.matmul(y_2, Wf) + bf)
 
-z_3 = tf.nn.softmax(tf.matmul(y_3, Wz) + bz)
+y_wb_3 = tf.matmul(y_3, Wz) + bz
+
+z_3 = tf.nn.softmax(y_wb_3)
 
 #######################################################################
 #   Training
 #######################################################################
 
-x_entropy_z_0 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[0], z_0))
-x_entropy_z_1 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[1], z_1))
-x_entropy_z_2 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[2], z_2))
-x_entropy_z_3 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[3], z_3))
+x_entropy_z_0 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[0], y_wb_0))
+x_entropy_z_1 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[1], y_wb_1))
+x_entropy_z_2 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[2], y_wb_2))
+x_entropy_z_3 = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=x_data[3], y_wb_3))
 
 cross_entropy = tf.reduce_mean([x_entropy_z_0, x_entropy_z_1, x_entropy_z_2, x_entropy_z_3])
 
@@ -90,7 +101,15 @@ correct_prediction = [tf.equal(tf.argmax(z_0, 1), sample[1]),
 
 accuracy = tf.reduce_mean(correct_prediction)
 
-sess.run(tf.global_variable_initializer())
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
+for i in range(500):
+    sess.run(train_step, feed_dict={i_0: x_data[0], i_1: x_data[1], i_2: x_data[2], i_3: x_data[3],
+                                    z_0_: sample_one_hot[1], z_1_: sample_one_hot[1], z_2_: sample_one_hot[1], z_3_: sample_one_hot[1]})
+    
+test_accuracy = sess.run(correct_prediction)/4.0
+
+print("test accuracy %f"%test_accuracy)
 
 
